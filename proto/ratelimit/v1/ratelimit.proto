@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package ratelimit.v1;
+option go_package = "github.com/KenUtsunomiya/my-rate-limiter/proto/ratelimit/v1;ratelimitv1";
+
+// Error represents error information returned by the rate limiter
+message Error {
+  enum ErrorCode {
+    UNSPECIFIED = 0;
+    RATE_LIMIT_EXCEEDED = 1;
+    INTERNAL_ERROR = 2;
+  }
+
+  ErrorCode code = 1;
+  string message = 2;
+}
+
+message RateLimitRequest {
+  string user_id = 1;
+  string method = 2;
+  string resource = 3;
+}
+
+message RateLimitResponse {
+  bool allowed = 1;
+  Error error = 2;
+}
+
+service RateLimiter {
+  // Check checks if a request is allowed under the rate limit policy
+  rpc Check (RateLimitRequest) returns (RateLimitResponse);
+}
