@@ -8,10 +8,14 @@ import (
 	"os/signal"
 	"syscall"
 
+	pb "github.com/KenUtsunomiya/my-rate-limiter/pb/ratelimit/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
+	env := cmp.Or(os.Getenv("ENV"), "prod")
+
 	if err := (func() error {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
@@ -25,6 +29,11 @@ func main() {
 		log.Printf("listening on port %s", addr)
 
 		server := grpc.NewServer()
+		pb.RegisterRateLimiterServer(server, &pb.UnimplementedRateLimiterServer{})
+
+		if env == "dev" {
+			reflection.Register(server)
+		}
 
 		go func() {
 			<-sigCh
