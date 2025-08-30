@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	_ "github.com/KenUtsunomiya/my-rate-limiter/proto/ratelimit/v1"
 	"google.golang.org/grpc"
 )
 

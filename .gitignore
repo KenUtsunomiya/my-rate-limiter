@@ -28,8 +28,8 @@ go.work.sum
 .env
 
 # Generated files
-proto/**/*.pb.go
-proto/**/*_grpc.go
+build
+pb
 
 # Editor/IDE
 # .idea/

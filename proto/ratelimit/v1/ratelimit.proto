@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package ratelimit.v1;
-option go_package = "github.com/KenUtsunomiya/my-rate-limiter/proto/ratelimit/v1;ratelimitv1";
+option go_package = "github.com/KenUtsunomiya/my-rate-limiter/pb/ratelimit/v1;ratelimitv1";
 
 // Error represents error information returned by the rate limiter
 message Error {
