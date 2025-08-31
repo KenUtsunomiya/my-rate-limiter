@@ -8,9 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	pb "github.com/KenUtsunomiya/my-rate-limiter/pb/ratelimit/v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	pb "github.com/KenUtsunomiya/my-rate-limiter/pb/ratelimit/v1"
+	"github.com/KenUtsunomiya/my-rate-limiter/pkg/server"
+	"github.com/KenUtsunomiya/my-rate-limiter/pkg/valkey"
 )
 
 func main() {
@@ -20,31 +23,40 @@ func main() {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
+		client, err := valkey.NewClient()
+		if err != nil {
+			return err
+		}
+		defer client.Close()
+
 		addr := ":" + cmp.Or(os.Getenv("GRPC_SERVER_PORT"), "50051")
 		lis, err := net.Listen("tcp", addr)
 		if err != nil {
-			log.Fatalf("failed to listen: %v", err)
+			return err
 		}
 
 		log.Printf("listening on port %s", addr)
 
-		server := grpc.NewServer()
-		pb.RegisterRateLimiterServer(server, &pb.UnimplementedRateLimiterServer{})
+		srv := grpc.NewServer()
+		pb.RegisterRateLimiterServer(srv, server.NewServer(*client))
 
 		if env == "dev" {
-			reflection.Register(server)
+			reflection.Register(srv)
 		}
 
+		shutdownCh := make(chan struct{})
 		go func() {
 			<-sigCh
 			log.Println("shutting down gRPC server...")
-			server.GracefulStop()
+			srv.GracefulStop()
+			close(shutdownCh)
 		}()
 
-		if err = server.Serve(lis); err != nil {
-			log.Fatalf("failed to start gRPC server: %v", err)
+		if err = srv.Serve(lis); err != nil {
+			return err
 		}
 
+		<-shutdownCh
 		return nil
 	})(); err != nil {
 		log.Fatalf("unknown error occurred: %v", err)

@@ -1,6 +1,9 @@
 syntax = "proto3";
 
 package ratelimit.v1;
+
+import "google/protobuf/empty.proto";
+
 option go_package = "github.com/KenUtsunomiya/my-rate-limiter/pb/ratelimit/v1;ratelimitv1";
 
 // Error represents error information returned by the rate limiter
@@ -27,6 +30,9 @@ message RateLimitResponse {
 }
 
 service RateLimiter {
+  // Hello greets the valkey instance
+  rpc Hello (google.protobuf.Empty) returns (google.protobuf.Empty);
+
   // Check checks if a request is allowed under the rate limit policy
   rpc Check (RateLimitRequest) returns (RateLimitResponse);
 }
