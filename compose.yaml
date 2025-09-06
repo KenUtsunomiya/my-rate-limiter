@@ -3,4 +3,4 @@
    valkey:
      image: valkey/valkey:8.1.3
      container_name: ratelimit
-     ports: [6379:6379]
+     ports: [ "6379:6379" ]
