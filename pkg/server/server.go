@@ -24,7 +24,7 @@ func NewServer(client valkey.Client) *Server {
 }
 
 func (s *Server) Hello(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	if err := s.vkClient.Hello(ctx); err != nil {
+	if err := s.vkClient.Ping(ctx); err != nil {
 		return nil, status.Errorf(codes.Internal, "cannot connect to valkey")
 	}
 	return &emptypb.Empty{}, nil

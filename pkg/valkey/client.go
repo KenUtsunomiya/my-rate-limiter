@@ -33,7 +33,7 @@ func (vc *Client) Close() {
 	vc.Client.Close()
 }
 
-func (vc *Client) Hello(ctx context.Context) error {
+func (vc *Client) Ping(ctx context.Context) error {
 	resp := vc.Client.Do(ctx, vc.Client.B().Ping().Build())
 	return resp.Error()
 }
