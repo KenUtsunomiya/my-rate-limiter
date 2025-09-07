@@ -35,6 +35,11 @@ test:
 	@echo "Running tests..."
 	go test -v -race -timeout 10s ./...
 
+.PHONY: lint
+lint:
+	@echo "Linting..."
+	go vet ./...
+
 .PHONY: deps
 deps:
 	@echo "Installing dependencies..."
