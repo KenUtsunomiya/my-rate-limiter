@@ -3,7 +3,6 @@ package valkey
 import (
 	"cmp"
 	"context"
-	"fmt"
 	"os"
 
 	vk "github.com/valkey-io/valkey-go"
@@ -38,8 +37,7 @@ func (vc *Client) Ping(ctx context.Context) error {
 	return resp.Error()
 }
 
-func (vc *Client) CheckRateLimit(ctx context.Context, userId string, method string, resource string) (bool, error) {
-	key := fmt.Sprintf("%s:%s:%s", userId, method, resource)
+func (vc *Client) CheckRateLimit(ctx context.Context, key string) (bool, error) {
 	cmd := vc.Client.B().Incr().Key(key).Build()
 	resp := vc.Client.Do(ctx, cmd)
 	if resp.Error() != nil {
