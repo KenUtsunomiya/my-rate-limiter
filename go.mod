@@ -3,12 +3,12 @@ module github.com/KenUtsunomiya/my-rate-limiter
 go 1.24.6
 
 require (
+	github.com/valkey-io/valkey-go v1.0.64
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
 )
 
 require (
-	github.com/valkey-io/valkey-go v1.0.64 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect

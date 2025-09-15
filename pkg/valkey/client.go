@@ -37,15 +37,30 @@ func (vc *Client) Ping(ctx context.Context) error {
 	return resp.Error()
 }
 
-func (vc *Client) CheckRateLimit(ctx context.Context, key string) (bool, error) {
-	cmd := vc.Client.B().Incr().Key(key).Build()
+func (vc *Client) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	cmd := vc.Client.B().Hgetall().Key(key).Build()
 	resp := vc.Client.Do(ctx, cmd)
 	if resp.Error() != nil {
-		return false, resp.Error()
+		return nil, resp.Error()
 	}
-	v, err := resp.AsInt64()
+	v, err := resp.AsStrMap()
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	return v <= 10, nil
+	return v, nil
+}
+
+func (vc *Client) HSet(ctx context.Context, key string, values map[string]string) error {
+	cmd := vc.Client.B().Hset().Key(key).FieldValue()
+	for k, v := range values {
+		cmd = cmd.FieldValue(k, v)
+	}
+	resp := vc.Client.Do(ctx, cmd.Build())
+	return resp.Error()
+}
+
+func (vc *Client) Expire(ctx context.Context, key string, ttl int64) error {
+	cmd := vc.Client.B().Expire().Key(key).Seconds(ttl).Build()
+	resp := vc.Client.Do(ctx, cmd)
+	return resp.Error()
 }
