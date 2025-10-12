@@ -41,8 +41,15 @@ func (rl *VkRateLimiter) Allow(ctx context.Context, userID string, method string
 		tokens = rl.maxTokens
 		lastRefill = now
 	} else {
-		tokens, _ = strconv.ParseFloat(data["tokens"], 64)
-		lastRefill, _ = strconv.ParseInt(data["lastRefillTs"], 10, 64)
+		var parseErr error
+		tokens, parseErr = strconv.ParseFloat(data["tokens"], 64)
+		if parseErr != nil {
+			tokens = rl.maxTokens
+		}
+		lastRefill, parseErr = strconv.ParseInt(data["lastRefillTs"], 10, 64)
+		if parseErr != nil {
+			lastRefill = now
+		}
 	}
 
 	elapsed := float64(now - lastRefill)
