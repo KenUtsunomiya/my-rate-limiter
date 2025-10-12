@@ -27,7 +27,7 @@ func NewRateLimiter(vkClient valkey.Client) *VkRateLimiter {
 
 // Allow checks if a request is allowed under the rate limit policy.
 func (rl *VkRateLimiter) Allow(ctx context.Context, userID string, method string, resource string) (bool, error) {
-	key := fmt.Sprintf("ratelimit:%s:%s:%s", userID, method, resource)
+	key := fmt.Sprintf("%s:%s:%s:%s", rl.keyPrefix, userID, method, resource)
 	now := time.Now().UnixMilli()
 
 	data, err := rl.vkClient.HGetAll(ctx, key)
