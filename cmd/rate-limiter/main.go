@@ -38,7 +38,7 @@ func main() {
 		log.Printf("listening on port %s", addr)
 
 		srv := grpc.NewServer()
-		pb.RegisterRateLimiterServer(srv, server.NewServer(*client))
+		pb.RegisterRateLimiterServer(srv, server.NewDefaultServer(*client))
 
 		if env == "dev" {
 			reflection.Register(srv)
