@@ -3,7 +3,6 @@ package valkey
 import (
 	"cmp"
 	"context"
-	"fmt"
 	"os"
 
 	vk "github.com/valkey-io/valkey-go"
@@ -38,16 +37,25 @@ func (vc *Client) Ping(ctx context.Context) error {
 	return resp.Error()
 }
 
-func (vc *Client) CheckRateLimit(ctx context.Context, userId string, method string, resource string) (bool, error) {
-	key := fmt.Sprintf("%s:%s:%s", userId, method, resource)
-	cmd := vc.Client.B().Incr().Key(key).Build()
-	resp := vc.Client.Do(ctx, cmd)
+func (vc *Client) HGetAll(ctx context.Context, key string) (map[string]string, error) {
+	resp := vc.Client.Do(ctx, vc.Client.B().Hgetall().Key(key).Build())
 	if resp.Error() != nil {
-		return false, resp.Error()
+		return nil, resp.Error()
 	}
-	v, err := resp.AsInt64()
+
+	v, err := resp.AsStrMap()
 	if err != nil {
-		return false, err
+		return nil, err
 	}
-	return v <= 10, nil
+
+	return v, nil
+}
+
+func (vc *Client) HSet(ctx context.Context, key string, values map[string]string) error {
+	cmd := vc.Client.B().Hset().Key(key).FieldValue()
+	for k, v := range values {
+		cmd = cmd.FieldValue(k, v)
+	}
+	resp := vc.Client.Do(ctx, cmd.Build())
+	return resp.Error()
 }

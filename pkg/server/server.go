@@ -1,8 +1,11 @@
 package server
 
 import (
+	"cmp"
 	"context"
 	"log"
+	"os"
+	"strconv"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,7 +34,11 @@ func NewServer(client valkey.Client, rl rateLimiter) *Server {
 }
 
 func NewDefaultServer(client valkey.Client) *Server {
-	return NewServer(client, ratelimit.NewRateLimiter())
+	maxTokens, _ := strconv.ParseFloat(cmp.Or(os.Getenv("RATELIMIT_MAX_TOKENS"), "1000"), 64)
+	refillRate, _ := strconv.ParseFloat(cmp.Or(os.Getenv("RATELIMIT_REFILL_RATE"), "1000"), 64)
+	return NewServer(
+		client,
+		ratelimit.NewRateLimiter(client, "ratelimit:", maxTokens, refillRate))
 }
 
 func (s *Server) Hello(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
