@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	pb "github.com/KenUtsunomiya/my-rate-limiter/pb/ratelimit/v1"
 	"github.com/KenUtsunomiya/my-rate-limiter/pkg/ratelimit"
@@ -54,7 +55,7 @@ func (s *Server) Check(ctx context.Context, req *pb.RateLimitRequest) (*pb.RateL
 	allowed, err := s.rl.Allow(ctx, req.UserId, req.Method, req.Resource)
 	if err != nil {
 		return &pb.RateLimitResponse{
-			Allowed: false,
+			Allowed: &wrapperspb.BoolValue{Value: false},
 			Error: &pb.Error{
 				Code:    pb.Error_INTERNAL_ERROR,
 				Message: err.Error(),
@@ -63,7 +64,7 @@ func (s *Server) Check(ctx context.Context, req *pb.RateLimitRequest) (*pb.RateL
 	}
 
 	return &pb.RateLimitResponse{
-		Allowed: allowed,
+		Allowed: &wrapperspb.BoolValue{Value: allowed},
 		Error:   nil,
 	}, nil
 }

@@ -3,6 +3,7 @@ syntax = "proto3";
 package ratelimit.v1;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 
 option go_package = "github.com/KenUtsunomiya/my-rate-limiter/pb/ratelimit/v1;ratelimitv1";
 
@@ -25,7 +26,7 @@ message RateLimitRequest {
 }
 
 message RateLimitResponse {
-  bool allowed = 1;
+  google.protobuf.BoolValue allowed = 1;
   Error error = 2;
 }
 
